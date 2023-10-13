@@ -246,6 +246,27 @@
     </div>
   </div>
   <h2>Question 2</h2>
+  <p>Predict the nationality based on their name for age more than 30</p>
+  <div class="terminal" *ngIf="displayTable">
+    <div class="d-flex justify-content-center table table-bordered">
+      <table class="w-75">
+        <tr>
+          <th *ngFor="let column of headersq2">
+            {{column}}
+          </th>
+        </tr>
+
+        <tr *ngFor="let row of filteredData">  
+          <td>  
+            {{row.Name}}
+          </td>
+          <td>
+            {{row.nationalityData}}
+          </td>
+        </tr>
+      </table>  
+    </div>
+  </div>
 
 </div>
 

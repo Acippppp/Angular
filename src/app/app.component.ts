@@ -13,9 +13,12 @@ export class AppComponent {
   }
   title = 'Angular-question';
   displayTable: boolean = false;
-  filteredData = []
+  filteredData:any = []
+  nationalityData:any = {}
 
   headers = ["No", "Name", "Age"]
+  headersq2 = ["Name","Nationality"]
+
 
   data: any = [
     {
@@ -51,13 +54,17 @@ export class AppComponent {
   showTable() {
     this.displayTable = true;
     this.filteredData = this.data.filter((item: { Age: number; }) => item.Age > 30);
-    console.log(this.filteredData);
+    this.filteredData = this.filteredData.map((row: { Name: string; }) =>({
+      ...row,
+      nationalityData:this.getData(row.Name),
+    }));
 
   }
 
   getData(name: string) {
     this.natinality.getData(name).subscribe(data => {
       console.log(data);
+
     })
   }
 
