@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { NationalityService } from './nationality.service';
+import { forkJoin, map } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -13,11 +14,12 @@ export class AppComponent {
   }
   title = 'Angular-question';
   displayTable: boolean = false;
-  filteredData:any = []
-  nationalityData:any = {}
+  filteredData: any = [];
+  nationalityData: any[] = [];
+  highestProbabilityCountry:any;
 
   headers = ["No", "Name", "Age"]
-  headersq2 = ["Name","Nationality"]
+  headersq2 = ["Name", "Nationality"]
 
 
   data: any = [
@@ -47,25 +49,45 @@ export class AppComponent {
       Age: 32
     }
   ]
-   
+
 
 
 
   showTable() {
     this.displayTable = true;
     this.filteredData = this.data.filter((item: { Age: number; }) => item.Age > 30);
-    this.filteredData = this.filteredData.map((row: { Name: string; }) =>({
-      ...row,
-      nationalityData:this.getData(row.Name),
-    }));
+    const observables = this.filteredData.map((row: { Name: string; }) => {
+      return this.getData(row.Name).pipe(
+        map((highestProbabilityCountry) => ({
+          ...row,
+          country_id: highestProbabilityCountry.country_id,
+          probability: highestProbabilityCountry.probability
+        }))
+      );
+    });
+
+    forkJoin(observables).subscribe(updatedItems => {
+      this.filteredData = updatedItems;
+      
+    });
+      
 
   }
+
 
   getData(name: string) {
-    this.natinality.getData(name).subscribe(data => {
-      console.log(data);
-
-    })
+    return this.natinality.getData(name).pipe(
+      map((data: any) => {
+        this.nationalityData = data["country"];
+        // Find the country with the highest probability
+        this.highestProbabilityCountry = this.nationalityData.reduce((max, current) => {
+          return max.probability > current.probability ? max : current;
+        });
+        
+        return this.highestProbabilityCountry;
+      })
+    );
   }
-
 }
+
+
